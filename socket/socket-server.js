@@ -1,4 +1,4 @@
-const { userAuthorization } = require("../middleware/authorization");
+const { userAuthorization } = require("../middlewares/authorization");
 const { onlineOfflineSignalEmit } = require("./func");
 const User = require("../models/users");
 
