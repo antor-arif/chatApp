@@ -185,11 +185,11 @@ exports.loginUser = async(req,res,next)=>{
 exports.logoutUser = async(req,res,next)=>{
     const user = req.user;
     const token = req.token;
-    const findUsersSession = await SessionModel.findOne({$and:[{user: user.email},{uuid: token},{sessionUUID: user.sessionUUID}]});
+    const findUsersSession = await SessionModel.findOne({$and:[{user: user.email},{uuid: token}]});
     let issue = {};
     try {
         if (findUsersSession) {
-            const deleteSession = await SessionModel.deleteOne({$and:[{user: user.email},{uuid: token},{sessionUUID: user.sessionUUID}]});
+            const deleteSession = await SessionModel.deleteOne({$and:[{user: user.email},{uuid: token}]});
             if (deleteSession) {
                   return res.status(200).json({
                      message : "Successfully logged out..."
@@ -200,9 +200,9 @@ exports.logoutUser = async(req,res,next)=>{
         } else {
             issue.error = "You are already logged out..Please login"
         }
-        if (!res.headersSent) {
+        
 			res.status(400).json({ issue });
-		}
+		
         
     } catch (error) {
         next(error)
@@ -238,9 +238,9 @@ exports.updateUserProfile = async(req,res,next)=>{
 			const emailLengthOk = email.length < 40;
 			if (emailLengthOk) {
 				if (isValidEmail(email)) {
-					const emailExist = await User.exists({ email });
+					const emailExist = await User.findOne({ email });
 					if (!emailExist) {
-                  email = email
+                       email = email
 						
 					} else {
 						issue.error = "An account has already associated with the email!";
@@ -287,10 +287,11 @@ exports.updateUserProfile = async(req,res,next)=>{
             }
         } 
         try {
-            const updateUser = await SessionModel.findOneAndUpdate({_id: user._id},{$set:{name, email, phone, password, avatar}},{new: true});
+            const updateUser = await User.findOneAndUpdate({_id: user._id},{$set:{name, email, phone, password, avatar}},{new: true});
             if (updateUser) {
                 res.status(200).json({
-                    message: "Profile updated successfully"
+                    message: "Profile updated successfully",
+                    data: updateUser
                 })
             }else{
                 issue.error = "Profile not updated"

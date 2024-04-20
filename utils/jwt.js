@@ -24,7 +24,9 @@ function createToken(userInfo) {
  */
 function parseJWT(token) {
 	try {
-		return jwt.verify(token, process.env.JWT_SECRET);
+		const splitToken = token.split(" ")[1]
+		
+		return jwt.verify(splitToken, process.env.JWT_SECRET);
 	} catch (err) {
 		return { error: err.message };
 	}

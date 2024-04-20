@@ -44,7 +44,7 @@ const socketServer = async (io) => {
         socket.leave(userId);
 
         // Update user status
-        user.socketId = null;
+        // user.socketId = null;
         user.lastOnline = new Date();
         await user.save();
 
