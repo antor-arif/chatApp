@@ -63,39 +63,25 @@ function randomDigit(length) {
 	return result;
 }
 
-async function userLoginSessionCreate(userId, expireInDay) {
+async function userLoginSessionCreate(userId,uuid, expireInDay) {
 	expireInDay = expireInDay || 30;
 
-	const sessionUUID = uuid();
-	const expireDate = new Date();
-	expireDate.setDate(expireDate.getDate() + expireInDay);
+	
+	const expiredAt = new Date();
+	expiredAt.setDate(expiredAt.getDate() + expireInDay);
 
 	const sessionStructure = new UserSession({
 		user: userId,
 		sessionName: "UserLoginSession",
-		sessionUUID,
-		expireDate,
+		uuid,
+		expiredAt,
 	});
 
 	const session = await sessionStructure.save();
 	return session;
 }
 
-async function userSessionCreate(userId, sessionName, length, expireInMinutes) {
-	const getRandomDigit = randomDigit(length);
 
-	const expireDate = new Date();
-	expireDate.setMinutes(expireDate.getMinutes() + expireInMinutes);
-	const sessionStructure = new UserSession({
-		user: userId,
-		sessionName,
-		sessionUUID: uuid(),
-		expireDate,
-		code: getRandomDigit,
-	});
-	const session = await sessionStructure.save();
-	return session;
-}
 
 
 
@@ -124,4 +110,4 @@ function NumberValidation(mobile) {
 
 
 
-module.exports = { isValidEmail,  usernameGenerating,  generatePassword, randomDigit, userLoginSessionCreate, userSessionCreate, NumberValidation};
+module.exports = { isValidEmail,  usernameGenerating,  generatePassword, randomDigit, userLoginSessionCreate,  NumberValidation};

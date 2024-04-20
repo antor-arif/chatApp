@@ -1,4 +1,4 @@
-const { registerUser } = require("../../controllers/auth");
+const { registerUser, loginUser } = require("../../controllers/auth");
 const multipart = require("connect-multiparty")
 const authRouter = require("express").Router();
 
@@ -6,6 +6,7 @@ const authRouter = require("express").Router();
 
 
 authRouter.post("/register",multipart(), registerUser);
+authRouter.post("/login", loginUser);
 
 
 
