@@ -28,7 +28,7 @@ exports.registerUser = async(req,res,next)=>{
 					const emailExist = await User.exists({ email });
 					if (!emailExist) {
 						/* username generating */
-						username = await usernameGenerating(email, Admin);
+						username = await usernameGenerating(email);
 						
 					} else {
 						issue.error = "An account has already associated with the email!";

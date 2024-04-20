@@ -84,7 +84,7 @@ const upload = async (file) => {
 	try {
 		let rt;
 
-		rt = await cloudinary.uploader.upload(file,{ folder: "chatApp" }, { resource_type: "raw" });
+		rt = await cloudinary.uploader.upload(file, { resource_type: "raw" });
 
 		fs.unlinkSync(file);
 
