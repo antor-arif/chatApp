@@ -1,6 +1,5 @@
 
-const { v4: uuid } = require("uuid");
-const UserSession = require("../models/UserSession");
+const UserSession = require("../models/userSession");
 
 
 function isValidEmail(email) {
