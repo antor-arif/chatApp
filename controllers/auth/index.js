@@ -3,6 +3,7 @@ const { imageCheck, upload } = require("../../utils/file");
 const { isValidEmail, usernameGenerating, userLoginSessionCreate } = require("../../utils/func");
 const bcrypt = require("bcrypt");
 const { createToken } = require("../../utils/jwt");
+const SessionModel = require("../../models/userSession");
 const salt = 11;
 
 
@@ -179,3 +180,125 @@ exports.loginUser = async(req,res,next)=>{
 }
 
 
+// User Logout
+
+exports.logoutUser = async(req,res,next)=>{
+    const user = req.user;
+    const token = req.token;
+    const findUsersSession = await SessionModel.findOne({$and:[{user: user.email},{uuid: token},{sessionUUID: user.sessionUUID}]});
+    let issue = {};
+    try {
+        if (findUsersSession) {
+            const deleteSession = await SessionModel.deleteOne({$and:[{user: user.email},{uuid: token},{sessionUUID: user.sessionUUID}]});
+            if (deleteSession) {
+                  return res.status(200).json({
+                     message : "Successfully logged out..."
+                  })
+            } else {
+                issue.error = "Couldn't log out...Please try again."
+            }
+        } else {
+            issue.error = "You are already logged out..Please login"
+        }
+        if (!res.headersSent) {
+			res.status(400).json({ issue });
+		}
+        
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+// Update user profile
+
+exports.updateUserProfile = async(req,res,next)=>{
+    const user = req.user;
+    let {name,email,password,phone} = req.body;
+    let avatar = req.files.avatar;
+  
+    let issue = {};
+
+    // Name check
+		if (name) {
+			const letters = /^[A-Za-z\s]+$/; // Name char validation
+			name = String(name).replace(/  +/g, " ").trim();
+			const validFirstName = name.match(letters);
+			if (validFirstName) {
+				name = name
+               
+			} else {
+				issue.error = "Name is not valid!";
+			}
+		} else {
+			issue.error = "Please enter your name!";
+		}
+        if (email) {
+			email = String(email).replace(/\s+/g, "").trim().toLowerCase();
+			const emailLengthOk = email.length < 40;
+			if (emailLengthOk) {
+				if (isValidEmail(email)) {
+					const emailExist = await User.exists({ email });
+					if (!emailExist) {
+                  email = email
+						
+					} else {
+						issue.error = "An account has already associated with the email!";
+					}
+				} else {
+					issue.error = "Please enter valid email address!";
+				}
+			} else {
+				issue.error = "Email length is too long!";
+			}
+		} else {
+			issue.error = "Please enter your email address!";
+		}
+
+        // check phone
+        if (phone) {
+            if (phone !== "NaN") {
+                phone = phone
+            } else {
+                issue.error = "Phone must be number."
+            }
+        } 
+        // check password
+        if (password) {
+            const hashPassword = await bcrypt.hashSync(password, salt)
+            password = hashPassword
+        } else {
+            issue.error = "Please enter your password"
+        }
+       
+        //check avatar
+        if (req.files && req.files.avatar) {
+            const theAvatar = req.files.avatar;
+            const checkImage = imageCheck(theAvatar);
+            if (checkImage.status) {
+                var uploadResult = await upload(theAvatar.path);
+                if (uploadResult.secure_url) {               
+                    avatar = uploadResult.secure_url;
+                } else {
+                    issue.error = uploadResult.message;
+                }
+            } else {
+                issue.error = checkImage.message;
+            }
+        } 
+        try {
+            const updateUser = await SessionModel.findOneAndUpdate({_id: user._id},{$set:{name, email, phone, password, avatar}},{new: true});
+            if (updateUser) {
+                res.status(200).json({
+                    message: "Profile updated successfully"
+                })
+            }else{
+                issue.error = "Profile not updated"
+            }
+            if (!res.headersSent) {
+                res.status(400).json(issue)
+            }
+        } catch (error) {
+            next(error)
+        }
+}

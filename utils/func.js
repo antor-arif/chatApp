@@ -1,6 +1,5 @@
-
-const UserSession = require("../models/userSession");
 const { v4: uuid } = require("uuid");
+const UserSession = require("../models/userSession");
 
 function isValidEmail(email) {
 	const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -63,9 +62,8 @@ function randomDigit(length) {
 	return result;
 }
 
-async function userLoginSessionCreate(userId,uuid, expireInDay) {
+async function userLoginSessionCreate(userId,token, expireInDay) {
 	expireInDay = expireInDay || 30;
-	const { v4: uuid } = require("uuid");
 	const sessionUUID = uuid();
 	
 	const expiredAt = new Date();
@@ -74,7 +72,7 @@ async function userLoginSessionCreate(userId,uuid, expireInDay) {
 	const sessionStructure = new UserSession({
 		user: userId,
 		sessionName: "UserLoginSession",
-		uuid,
+		uuid: token,
 		expiredAt,
 		sessionUUID
 	});

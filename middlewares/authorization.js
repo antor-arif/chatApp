@@ -11,6 +11,7 @@ exports.userAuthorization=async(req,res,next)=>{
           const checkSession = await SessionModel.findOne({$and:[{user:payload.email},{sessionUUID: payload.sessionUUID},{uuid: token}]})
           if (checkSession) {
                 req.user = payload;
+                req.toke = token
                 next();
           } else {
             issue.error = "Please login again"
