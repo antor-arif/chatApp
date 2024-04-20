@@ -12,6 +12,9 @@ const userSessionSchema = new Schema({
     },
     expiredAt:{
         type: Date
+    },
+    sessionUUID:{
+        type: String
     }
 },{timestamps: true})
 
