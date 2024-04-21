@@ -19,10 +19,10 @@ const ChatHeadSchema = new Schema({
     lastMessage:{
         type: String,
     },
-    isSeen:{
-        type: Boolean,
-        default: false,
-        select: false
+    lastMessageSender:{
+                    type: Schema.Types.ObjectId,
+                    ref: "users",
+                    required: true,
     }
 },{timestamps: true})
 
