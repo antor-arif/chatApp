@@ -10,7 +10,7 @@ const jwt = require("jsonwebtoken");
 function createToken(userInfo) {
 	return jwt.sign(
 		{
-			userInfo
+			userInfo,
 		},
 		process.env.JWT_SECRET
 	);
@@ -24,8 +24,8 @@ function createToken(userInfo) {
  */
 function parseJWT(token) {
 	try {
-		const splitToken = token.split(" ")[1]
-		
+		const splitToken = token.split(" ")[1];
+
 		return jwt.verify(splitToken, process.env.JWT_SECRET);
 	} catch (err) {
 		return { error: err.message };

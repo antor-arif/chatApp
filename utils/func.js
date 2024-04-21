@@ -8,8 +8,6 @@ function isValidEmail(email) {
 	return validEmail;
 }
 
-
-
 async function usernameGenerating(email, model, forbiddenUsernames) {
 	const User = require("../models/users");
 	model = model || User;
@@ -39,8 +37,6 @@ async function usernameGenerating(email, model, forbiddenUsernames) {
 	return username;
 }
 
-
-
 function generatePassword(length) {
 	length = length || 10;
 	let charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$_&-+()/*:;!?";
@@ -62,10 +58,10 @@ function randomDigit(length) {
 	return result;
 }
 
-async function userLoginSessionCreate(userId,token, expireInDay) {
+async function userLoginSessionCreate(userId, token, expireInDay) {
 	expireInDay = expireInDay || 30;
 	const sessionUUID = uuid();
-	
+
 	const expiredAt = new Date();
 	expiredAt.setDate(expiredAt.getDate() + expireInDay);
 
@@ -74,16 +70,12 @@ async function userLoginSessionCreate(userId,token, expireInDay) {
 		sessionName: "UserLoginSession",
 		uuid: token,
 		expiredAt,
-		sessionUUID
+		sessionUUID,
 	});
 
 	const session = await sessionStructure.save();
 	return session;
 }
-
-
-
-
 
 function NumberValidation(mobile) {
 	const response = {
@@ -94,10 +86,8 @@ function NumberValidation(mobile) {
 	const num = /^\d+$/.test(mobile);
 	if (num) {
 		if (mobile.length === 11) {
-			
-				response.message = "Valid number";
-				response.valid = true;
-			
+			response.message = "Valid number";
+			response.valid = true;
 		} else {
 			response.message = "Number should be 11 digit!";
 		}
@@ -108,6 +98,4 @@ function NumberValidation(mobile) {
 	return response;
 }
 
-
-
-module.exports = { isValidEmail,  usernameGenerating,  generatePassword, randomDigit, userLoginSessionCreate,  NumberValidation};
+module.exports = { isValidEmail, usernameGenerating, generatePassword, randomDigit, userLoginSessionCreate, NumberValidation };

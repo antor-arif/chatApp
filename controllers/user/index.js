@@ -215,7 +215,7 @@ exports.getMessages = async (req, res, next) => {
 		if (validateID) {
 			const findUser = await User.findOne({ _id: OtherUser });
 			if (findUser) {
-				OtherUser = findUSer._id;
+				OtherUser = findUser._id;
 			} else {
 				issue.error = "User doesn't exists";
 			}
@@ -301,6 +301,141 @@ exports.RemoveMessage = async (req, res, next) => {
 			res.status(400).json(issue);
 		}
 	} catch (error) {
+		next(error);
+	}
+};
+
+// Edit Message......
+
+exports.EditMessage = async (req, res, next) => {
+	const user = req.user;
+	let messageID = req.params.id;
+	let { message } = req.body;
+	let issue = {};
+
+	// validate message.....
+
+	if (messageID) {
+		const validID = isValidObjectId(messageID);
+		if (validID) {
+			const messageExists = await Chat.findOne({ _id: messageID });
+			if (messageExists) {
+				if (messageExists.sender.toString() === user._id.toString()) {
+					messageID = messageID;
+				} else {
+					issue.error = "You're not sender of this message.";
+				}
+			} else {
+				issue.error = "Message doesn't exists";
+			}
+		} else {
+			issue.error = "Invalid object ID";
+		}
+	} else {
+		issue.error = "Message ID is required.";
+	}
+
+	try {
+		const UpdateTheMessage = await Chat.findOneAndUpdate({ _id: messageID }, { $set: { content: message } }, { new: true });
+		if (setTheMessageDeleted) {
+			return res.status(200).json({
+				message: "Message updated",
+				data: UpdateTheMessage.content,
+			});
+		} else {
+			issue.error = "Something went wrong.Message not updated";
+		}
+		if (!res.headersSent) {
+			return res.status(400).json(issue);
+		}
+	} catch (error) {
+		next(error);
+	}
+};
+
+// Block a user.......
+
+exports.BlockUser = async (req, res, next) => {
+	const user = req.user;
+	let OtherUser = req.params.id;
+
+	let issue = {};
+
+	if (OtherUser) {
+		const validateID = isValidObjectId(OtherUser);
+		if (validateID) {
+			const findUser = await User.findOne({ _id: OtherUser });
+			if (findUser) {
+				OtherUser = findUser._id;
+			} else {
+				issue.error = "User doesn't exists";
+			}
+		} else {
+			issue.error = "Invalid User ID";
+		}
+	} else {
+		issue.error = "You must need to provide user ID";
+	}
+	try {
+		const newBlock = new Block({
+			by: user._id,
+			to: OtherUser,
+		});
+		const saveBlock = await newBlock.save();
+		if (saveBlock) {
+			return res.status(200).json({
+				message: "User blocked successfully",
+			});
+		} else {
+			issue.error = "Failed to block user";
+		}
+		if (!res.headersSent) {
+			res.status(400).json(issue);
+		}
+	} catch (error) {
+		next(error);
+	}
+};
+
+exports.UnblockUser = async (req, res, next) => {
+	const user = req.user;
+	let OtherUser = req.params.id;
+
+	let issue = {};
+
+	if (OtherUser) {
+		const validateID = isValidObjectId(OtherUser);
+		if (validateID) {
+			const findUser = await User.findOne({ _id: OtherUser });
+			if (findUser) {
+				OtherUser = findUser._id;
+			} else {
+				issue.error = "User doesn't exists";
+			}
+		} else {
+			issue.error = "Invalid User ID";
+		}
+	} else {
+		issue.error = "You must need to provide user ID";
+	}
+	try {
+		const haveIBlocked = await Block.findOne({ $and: [{ by: user._id }, { to: OtherUser }] });
+		if (haveIBlocked) {
+			const UnblockTheUser = await Block.deleteOne({ $and: [{ by: user._id }, { to: OtherUser }] });
+			if (UnblockTheUser) {
+				return res.status(200).json({
+					message: "Successfully unblocked user",
+				});
+			} else {
+				issue.error = "Failed unblocked user";
+			}
+		} else {
+			issue.error = "You are not the blocker";
+		}
+		if (!res.headersSent) {
+			res.status(400).json(issue);
+		}
+	} catch {
 		next(error);
 	}
 };
