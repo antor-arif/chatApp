@@ -17,30 +17,28 @@ const chatSchema = new Schema(
 			ref: "Chat",
 		},
 		seen: {
-			time:{
-                type: Date
-            },
+			type: Boolean,
 			select: false,
+			default: false,
 		},
 		deleted: {
 			type: Boolean,
 			default: false,
 			select: false,
 		},
-		editedAt: Date,
-        edited:{
-            type: Boolean,
-            default: false,
-            select: false,
-        },
-        content:{
-            type: String
-        },
-        chatHeadRef:{
-            type: Schema.Types.ObjectId,
+		edited: {
+			type: Boolean,
+			default: false,
+			select: false,
+		},
+		content: {
+			type: String,
+		},
+		chatHeadRef: {
+			type: Schema.Types.ObjectId,
 			ref: "ChatHead",
 			required: true,
-        }
+		},
 	},
 	{
 		timestamps: true,
